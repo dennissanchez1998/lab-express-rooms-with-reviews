@@ -61,6 +61,45 @@ router.post('/signup', (req, res) => {
 
 })
 
+//login post
+router.post('/login', (req, res) => {
+
+  const {
+
+    email,
+    password
+  } = req.body
+
+  User.findOne({
+      email
+    })
+    .then(usuario => {
+      if (!usuario) {
+        res.render('auth/login', {
+          error: "el usuario no esta"
+        })
+        return
+      } else if (bcryptjs.compareSync(password, usuario.passwordHash)) {
+
+        req.session.currentUser = usuario
+        res.redirect('/')
+        return
+
+      } else {
+        res.render('index', {
+          error: "pasword incorrecto"
+        })
+        return
+      }
+
+
+
+    }).catch(e => {
+      next(e)
+    })
+
+})
+
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/login');
